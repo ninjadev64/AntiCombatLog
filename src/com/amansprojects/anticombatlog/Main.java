@@ -34,7 +34,9 @@ public class Main extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        long difference = TimeUnit.SECONDS.convert((times.get(player).getTime() - new Date().getTime()), TimeUnit.MILLISECONDS);
+        Date d = times.get(player);
+        if (d == null) return;
+        long difference = TimeUnit.SECONDS.convert((d.getTime() - new Date().getTime()), TimeUnit.MILLISECONDS);
         if (difference <= 20) {
             getLogger().warning(ChatColor.RED + player.getName() + " may have combat logged!");
             Bukkit.broadcastMessage(ChatColor.RED + player.getName() + " may have combat logged!");
