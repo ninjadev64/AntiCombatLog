@@ -2,6 +2,7 @@ package com.amansprojects.anticombatlog;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -9,12 +10,10 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Date;
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 
 public class Main extends JavaPlugin implements Listener {
-    HashMap<Player, Date> times = new HashMap<Player, Date>();
+    HashMap<Entity, Long> times = new HashMap<Entity, Long>();
 
     @Override
     public void onEnable() {
@@ -25,19 +24,18 @@ public class Main extends JavaPlugin implements Listener {
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         if (event.getEntity() instanceof Player && event.getDamager() instanceof Player) {
-            Date date = new Date();
-            times.put((Player) event.getEntity(), date);
-            times.put((Player) event.getDamager(), date);
+            times.put(event.getEntity(), System.currentTimeMillis());
+            times.put(event.getDamager(), System.currentTimeMillis());
         }
     }
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        Date d = times.get(player);
+        Long d = times.get(player);
         if (d == null) return;
-        long difference = TimeUnit.SECONDS.convert((d.getTime() - new Date().getTime()), TimeUnit.MILLISECONDS);
-        if (difference <= 20) {
+        long difference = System.currentTimeMillis() - d;
+        if (difference < 20000) {
             getLogger().warning(ChatColor.RED + player.getName() + " may have combat logged!");
             Bukkit.broadcastMessage(ChatColor.RED + player.getName() + " may have combat logged!");
         }
